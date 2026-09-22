@@ -426,7 +426,10 @@ async function uploadFileToStorage(file) {
 
     const { data, error } = await supabase.storage
         .from("chat-files")
-        .upload(filePath, file);
+        .upload(filePath, file, {
+            contentType: file.type || 'audio/webm',
+            upsert: true
+        });
 
     if (error) {
         throw new Error("تعذر رفع الملف: " + error.message);
