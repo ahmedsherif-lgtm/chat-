@@ -1,0 +1,355 @@
+
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Chat App | دردشتي</title>
+
+    <!-- ملف التصميم -->
+    <link rel="stylesheet" href="style.css">
+
+    <!-- أيقونات Font Awesome -->
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+    >
+
+    <!-- ملف JavaScript الرئيسي -->
+    <script type="module" src="app.js"></script>
+</head>
+
+<body>
+
+    <!-- ============================= -->
+    <!-- شاشة تسجيل الدخول -->
+    <!-- ============================= -->
+
+    <section id="login-screen" class="login-screen">
+
+        <div class="login-card">
+
+            <div class="login-logo">
+                <i class="fa-solid fa-comments"></i>
+            </div>
+
+            <h1>مرحبًا بك 👋</h1>
+
+            <p class="login-description">
+                أدخل الرقم المرجعي للانتقال إلى الدردشة
+            </p>
+
+            <form id="login-form">
+
+                <label for="reference-code">
+                    الرقم المرجعي
+                </label>
+
+                <div class="input-container">
+                    <i class="fa-solid fa-lock"></i>
+
+                    <input
+                        type="password"
+                        id="reference-code"
+                        placeholder="أدخل الرقم المرجعي"
+                        inputmode="numeric"
+                        autocomplete="off"
+                        required
+                    >
+                </div>
+
+                <button type="submit" id="login-button">
+                    <span>دخول إلى الدردشة</span>
+                    <i class="fa-solid fa-arrow-left"></i>
+                </button>
+
+                <p id="login-error" class="error-message" role="alert"></p>
+
+            </form>
+
+            <div class="login-footer">
+                <i class="fa-solid fa-shield-halved"></i>
+                <span>مرحبًا بك في دردشتك</span>
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- ============================= -->
+    <!-- الصفحة الرئيسية للدردشة -->
+    <!-- ============================= -->
+
+    <main id="chat-screen" class="chat-screen" >
+
+        <!-- الشريط الجانبي -->
+        <aside class="sidebar">
+
+            <header class="sidebar-header">
+
+                <div class="user-profile">
+
+                    <div class="avatar">
+                        <i class="fa-solid fa-user"></i>
+                    </div>
+
+                    <div class="user-info">
+                        <h2 id="current-user-name">مستخدم</h2>
+                        <p>حسابك</p>
+                    </div>
+
+                </div>
+
+                <button
+                    type="button"
+                    id="logout-button"
+                    class="icon-button"
+                    title="تسجيل الخروج"
+                    aria-label="تسجيل الخروج"
+                >
+                    <i class="fa-solid fa-right-from-bracket"></i>
+                </button>
+
+            </header>
+
+
+            <!-- البحث -->
+            <div class="search-container">
+
+                <i class="fa-solid fa-magnifying-glass"></i>
+
+                <input
+                    type="search"
+                    id="chat-search"
+                    placeholder="ابحث في المحادثات..."
+                >
+
+            </div>
+
+
+            <!-- قائمة المحادثات -->
+            <section class="conversations-section">
+
+                <h3>المحادثات</h3>
+
+                <div id="conversations-list">
+
+                    <div class="empty-conversations">
+                        <i class="fa-solid fa-comments"></i>
+
+                        <p>لا توجد محادثات حتى الآن</p>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+        </aside>
+
+
+        <!-- منطقة المحادثة -->
+        <section class="chat-area">
+
+            <!-- رأس المحادثة -->
+            <header class="chat-header">
+
+                <div class="chat-contact">
+
+                    <div class="avatar contact-avatar">
+                        <i class="fa-solid fa-user"></i>
+                    </div>
+
+                    <div class="contact-info">
+
+                        <h2 id="contact-name">
+                            محادثتنا
+                        </h2>
+
+                        <p id="contact-status">
+                            <span class="status-dot"></span>
+                            <span>بانتظار الاتصال</span>
+                        </p>
+
+                    </div>
+
+                </div>
+
+                <div class="chat-header-actions">
+
+                    <button
+                        type="button"
+                        id="search-messages-button"
+                        class="icon-button"
+                        title="البحث في الرسائل"
+                        aria-label="البحث في الرسائل"
+                    >
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                    </button>
+
+                    <button
+                        type="button"
+                        id="chat-menu-button"
+                        class="icon-button"
+                        title="خيارات المحادثة"
+                        aria-label="خيارات المحادثة"
+                    >
+                        <i class="fa-solid fa-ellipsis-vertical"></i>
+                    </button>
+
+                </div>
+
+            </header>
+
+
+            <!-- الرسائل -->
+            <div
+                id="messages-container"
+                class="messages-container"
+                aria-live="polite"
+            >
+
+                <div id="welcome-message" class="welcome-message">
+
+                    <div class="welcome-icon">
+                        <i class="fa-solid fa-comments"></i>
+                    </div>
+
+                    <h2>أهلًا بك في دردشتك</h2>
+
+                    <p>
+                        ستظهر رسائلك ورسائل الطرف الآخر هنا.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <!-- مؤشر التسجيل الصوتي -->
+            <div id="recording-indicator" class="recording-indicator" hidden>
+
+                <span class="recording-dot"></span>
+
+                <span>جارٍ تسجيل الرسالة الصوتية...</span>
+
+                <span id="recording-time">00:00</span>
+
+                <button
+                    type="button"
+                    id="cancel-recording-button"
+                    class="icon-button"
+                    title="إلغاء التسجيل"
+                    aria-label="إلغاء التسجيل"
+                >
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+
+            </div>
+
+
+            <!-- معاينة المرفق قبل الإرسال -->
+            <div id="attachment-preview" class="attachment-preview" hidden>
+
+                <div id="attachment-preview-content"></div>
+
+                <button
+                    type="button"
+                    id="remove-attachment-button"
+                    class="icon-button"
+                    title="إزالة المرفق"
+                    aria-label="إزالة المرفق"
+                >
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+
+            </div>
+
+
+            <!-- منطقة كتابة الرسالة -->
+            <form id="message-form" class="message-form">
+
+                <!-- زر إرفاق صورة -->
+                <button
+                    type="button"
+                    id="image-button"
+                    class="icon-button attachment-button"
+                    title="إرسال صورة"
+                    aria-label="إرسال صورة"
+                >
+                    <i class="fa-regular fa-image"></i>
+                </button>
+
+                <input
+                    type="file"
+                    id="image-input"
+                    accept="image/*"
+                    hidden
+                >
+
+
+                <!-- زر إرفاق ملف -->
+                <button
+                    type="button"
+                    id="file-button"
+                    class="icon-button attachment-button"
+                    title="إرسال ملف"
+                    aria-label="إرسال ملف"
+                >
+                    <i class="fa-solid fa-paperclip"></i>
+                </button>
+
+                <input
+                    type="file"
+                    id="file-input"
+                    hidden
+                >
+
+
+                <!-- زر التسجيل الصوتي -->
+                <button
+                    type="button"
+                    id="voice-button"
+                    class="icon-button attachment-button"
+                    title="تسجيل رسالة صوتية"
+                    aria-label="تسجيل رسالة صوتية"
+                >
+                    <i class="fa-solid fa-microphone"></i>
+                </button>
+
+
+                <!-- كتابة النص -->
+                <div class="message-input-wrapper">
+
+                    <textarea
+                        id="message-input"
+                        placeholder="اكتب رسالتك هنا..."
+                        rows="1"
+                        maxlength="5000"
+                        aria-label="نص الرسالة"
+                    ></textarea>
+
+                </div>
+
+
+                <!-- إرسال الرسالة -->
+                <button
+                    type="submit"
+                    id="send-button"
+                    class="send-button"
+                    title="إرسال الرسالة"
+                    aria-label="إرسال الرسالة"
+                >
+                    <i class="fa-solid fa-paper-plane"></i>
+                </button>
+
+            </form>
+
+        </section>
+
+    </main>
+
+</body>
+</html>
