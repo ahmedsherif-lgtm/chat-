@@ -337,21 +337,31 @@ async function startRecording() {
             if (e.data.size > 0) audioChunks.push(e.data);
         };
 
-        mediaRecorder.onstop = async () => {
-            stream.getTracks().forEach((track) => track.stop());
-            clearInterval(recordingInterval);
+       mediaRecorder.onstop = async () => {
+    stream.getTracks().forEach((track) => track.stop());
+    clearInterval(recordingInterval);
 
-            if (isCancelled) {
-                resetRecordingUI();
-                return;
-            }
+    if (isCancelled) {
+        resetRecordingUI();
+        return;
+    }
 
-            const audioBlob = new Blob(audioChunks, { type: "audio/webm" });
-            const voiceFile = new File([audioBlob], `voice_${Date.now()}.webm`, { type: "audio/webm" });
+    const mimeType = mediaRecorder.mimeType || "audio/webm";
+    const audioBlob = new Blob(audioChunks, { type: mimeType });
 
-            await sendVoiceMessage(voiceFile);
-            resetRecordingUI();
-        };
+    // إلغاء مؤشر التسجيل فوراً لتجنب بقاء الشاشة في حالة تحميل
+    resetRecordingUI();
+
+    if (audioBlob.size === 0) {
+        alert("لم يتم التقاط أي صوت، حاول مرة أخرى.");
+        return;
+    }
+
+    const ext = mimeType.includes("mp4") ? "mp4" : "webm";
+    const voiceFile = new File([audioBlob], `voice_${Date.now()}.${ext}`, { type: mimeType });
+
+    await sendVoiceMessage(voiceFile);
+};
 
         mediaRecorder.start();
         recordingSeconds = 0;
