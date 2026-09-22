@@ -337,31 +337,30 @@ async function startRecording() {
             if (e.data.size > 0) audioChunks.push(e.data);
         };
 
-       mediaRecorder.onstop = async () => {
-    stream.getTracks().forEach((track) => track.stop());
-    clearInterval(recordingInterval);
+        mediaRecorder.onstop = async () => {
+            stream.getTracks().forEach((track) => track.stop());
+            clearInterval(recordingInterval);
 
-    if (isCancelled) {
-        resetRecordingUI();
-        return;
-    }
+            if (isCancelled) {
+                resetRecordingUI();
+                return;
+            }
 
-    const mimeType = mediaRecorder.mimeType || "audio/webm";
-    const audioBlob = new Blob(audioChunks, { type: mimeType });
+            const mimeType = mediaRecorder.mimeType || "audio/webm";
+            const audioBlob = new Blob(audioChunks, { type: mimeType });
 
-    // إلغاء مؤشر التسجيل فوراً لتجنب بقاء الشاشة في حالة تحميل
-    resetRecordingUI();
+            resetRecordingUI();
 
-    if (audioBlob.size === 0) {
-        alert("لم يتم التقاط أي صوت، حاول مرة أخرى.");
-        return;
-    }
+            if (audioBlob.size === 0) {
+                alert("لم يتم التقاط أي صوت، حاول مرة أخرى.");
+                return;
+            }
 
-    const ext = mimeType.includes("mp4") ? "mp4" : "webm";
-    const voiceFile = new File([audioBlob], `voice_${Date.now()}.${ext}`, { type: mimeType });
+            const ext = mimeType.includes("mp4") ? "mp4" : "webm";
+            const voiceFile = new File([audioBlob], `voice_${Date.now()}.${ext}`, { type: mimeType });
 
-    await sendVoiceMessage(voiceFile);
-};
+            await sendVoiceMessage(voiceFile);
+        };
 
         mediaRecorder.start();
         recordingSeconds = 0;
@@ -376,7 +375,7 @@ async function startRecording() {
 
     } catch (err) {
         console.error("Mic access error:", err);
-        alert("تعذر الوصول إلى المايكروفون. تأكد من إعطاء الصلاحيات في المتصفح.");
+        alert("تعذر الوصول إلى المايكروفون. تأكد من سماح المتصفح وإتاحة الأذونات.");
     }
 }
 
@@ -400,10 +399,15 @@ cancelRecordingButton?.addEventListener("click", () => {
 });
 
 async function sendVoiceMessage(file) {
-    if (!currentUser || !currentConversationId) return;
+    if (!currentUser || !currentConversationId) {
+        alert("سجّل الدخول أولاً.");
+        return;
+    }
 
     try {
+        console.log("جارٍ رفع التسجيل الصوتي...", file);
         const uploadResult = await uploadFileToStorage(file);
+
         const senderName =
             currentUser.user_metadata?.display_name ||
             "مستخدم-" + currentUser.id.slice(0, 4);
@@ -412,16 +416,18 @@ async function sendVoiceMessage(file) {
             conversation_id: currentConversationId,
             sender_id: currentUser.id,
             sender_name: senderName,
-            message_type: "voice",
+            message_type: "file",
             body: "🎤 رسالة صوتية",
             file_url: uploadResult.url,
-            file_type: uploadResult.type
+            file_type: uploadResult.type || "audio/webm"
         });
 
         if (error) throw error;
+        console.log("تم إرسال الصوت بنجاح!");
+
     } catch (err) {
-        console.error("Voice send error:", err);
-        alert("تعذر إرسال الرسالة الصوتية.");
+        console.error("خطأ إرسال الصوت:", err);
+        alert("فشل إرسال الصوت: " + (err.message || JSON.stringify(err)));
     }
 }
 
@@ -502,8 +508,11 @@ function renderMessage(message) {
         attachmentContainer.className = "message-attachment";
         attachmentContainer.style.marginTop = "6px";
 
-        if (message.message_type === "voice" || (message.file_type && message.file_type.startsWith("audio/"))) {
-            // مشغل الصوت للرسائل الصوتية
+        if (
+            message.message_type === "voice" || 
+            (message.file_type && message.file_type.startsWith("audio/")) ||
+            (message.file_url && (message.file_url.includes(".webm") || message.file_url.includes(".mp4")))
+        ) {
             const audio = document.createElement("audio");
             audio.src = message.file_url;
             audio.controls = true;
@@ -511,7 +520,6 @@ function renderMessage(message) {
             audio.style.display = "block";
             attachmentContainer.appendChild(audio);
         } else if (message.file_type && message.file_type.startsWith("image/")) {
-            // المعاينة للصور
             const img = document.createElement("img");
             img.src = message.file_url;
             img.alt = "صورة مرفقة";
@@ -520,7 +528,6 @@ function renderMessage(message) {
             img.style.display = "block";
             attachmentContainer.appendChild(img);
         } else {
-            // رابط تحميل الملفات المستندية
             const link = document.createElement("a");
             link.href = message.file_url;
             link.target = "_blank";
